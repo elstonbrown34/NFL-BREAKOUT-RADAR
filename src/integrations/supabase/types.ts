@@ -155,6 +155,71 @@ export type Database = {
         }
         Relationships: []
       }
+      scouting_generation_locks: {
+        Row: {
+          cutoff_week: number
+          player_id: string
+          season: number
+          started_at: string
+        }
+        Insert: {
+          cutoff_week: number
+          player_id: string
+          season: number
+          started_at?: string
+        }
+        Update: {
+          cutoff_week?: number
+          player_id?: string
+          season?: number
+          started_at?: string
+        }
+        Relationships: []
+      }
+      scouting_reports: {
+        Row: {
+          cutoff_week: number
+          generated_at: string
+          id: string
+          model: string
+          player_id: string
+          risks: string
+          season: number
+          verdict: string
+          why_on_radar: string
+        }
+        Insert: {
+          cutoff_week: number
+          generated_at?: string
+          id?: string
+          model: string
+          player_id: string
+          risks: string
+          season: number
+          verdict: string
+          why_on_radar: string
+        }
+        Update: {
+          cutoff_week?: number
+          generated_at?: string
+          id?: string
+          model?: string
+          player_id?: string
+          risks?: string
+          season?: number
+          verdict?: string
+          why_on_radar?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scouting_reports_season_cutoff_week_player_id_fkey"
+            columns: ["season", "cutoff_week", "player_id"]
+            isOneToOne: false
+            referencedRelation: "breakout_scores"
+            referencedColumns: ["season", "cutoff_week", "player_id"]
+          },
+        ]
+      }
       season_syncs: {
         Row: {
           completed_at: string | null
@@ -190,6 +255,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_scouting_generation: {
+        Args: { p_cutoff_week: number; p_player_id: string; p_season: number }
+        Returns: boolean
+      }
       claim_season_sync: { Args: { p_season: number }; Returns: boolean }
       save_breakout_scores: {
         Args: { p_cutoff_week: number; p_scores: Json; p_season: number }

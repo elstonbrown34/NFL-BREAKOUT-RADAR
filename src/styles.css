@@ -101,6 +101,15 @@
 @media(max-width:500px) { .app-header { height:72px; padding:0 16px; gap:12px; } .brand-name { font-size:18px; } .brand-sub { font-size:7px; letter-spacing:1px; } .brand-mark { width:30px; height:30px; } .nav-link { font-size:12px; gap:5px; } .main-nav { gap:14px; } .nav-link svg { display:none; } .page-content { padding:25px 16px; } .page-title { font-size:34px; } .stat-grid { gap:10px; } .stat-card { padding:16px; } .field-copy { padding:18px; max-width:310px; } .field-copy h2 { font-size:25px; } .field-copy p { font-size:12px; } .search-box, .search-box input { width:100%; } .toolbar-right { width:100%; } .footer { align-items:flex-start; flex-direction:column; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; } }
 .season-label { font-size:12px; color:var(--muted-foreground); }
+.player-breakout { display:flex; gap:24px; align-items:center; margin:24px 0; padding:20px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.component-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.trend-chart { width:100%; height:280px; min-width:0; font-size:12px; }
+.scouting-section { margin-top:32px; padding:28px 0; border-top:1px solid var(--border); }
+.report-body { display:grid; gap:22px; margin-top:28px; max-width:900px; }
+.report-body h3 { font-size:16px; font-weight:600; margin-bottom:8px; }
+.report-body p { color:var(--muted-foreground); font-size:15px; line-height:1.7; }
+.report-body .report-verdict { color:var(--primary); font-family:var(--font-display); font-size:25px; font-weight:600; }
+@media(max-width:600px) { .component-grid { grid-template-columns:1fr; } .trend-chart { height:240px; } .player-breakout { gap:16px; flex-wrap:wrap; } }
 .headshot { width:44px; height:44px; display:grid; place-items:center; overflow:hidden; background:var(--secondary); border-radius:6px; color:var(--muted-foreground); }
 .headshot img { width:100%; height:100%; object-fit:cover; }
 .headshot-large { width:96px; height:96px; flex-shrink:0; }

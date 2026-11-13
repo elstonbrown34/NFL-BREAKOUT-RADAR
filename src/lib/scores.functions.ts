@@ -35,10 +35,12 @@ export const getScores = createServerFn({ method:'GET' }).handler(async () => {
 
 export const getPlayerScore = createServerFn({ method:'GET' }).inputValidator(cutoffSchema.extend({ playerId:z.string().min(1).max(100) })).handler(async ({ data }) => {
   const { publicClient, readPlayerWeeks } = await import('./nfl.server');
-  const [score, weeks] = await Promise.all([
+  const [score, weeks, report] = await Promise.all([
     publicClient().from('breakout_scores').select('*').eq('season',data.season).eq('cutoff_week',data.cutoffWeek).eq('player_id',data.playerId).maybeSingle(),
     readPlayerWeeks(data.season,data.cutoffWeek,data.playerId),
+    publicClient().from('scouting_reports').select('*').eq('season',data.season).eq('cutoff_week',data.cutoffWeek).eq('player_id',data.playerId).order('generated_at',{ascending:false}).limit(1).maybeSingle(),
   ]);
   if (score.error) throw new Error('Player score could not be loaded.');
-  return { player:score.data, weeks };
+  if (report.error) throw new Error('Saved scouting report could not be loaded.');
+  return { player:score.data, weeks, report:report.data };
 });

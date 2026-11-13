@@ -33,6 +33,8 @@ use the editor.
 - Load all NFL data through TanStack server functions; never download CSVs or query the database in browser code.
 - Keep CSV filtering, name joining, and trend ranking in a tested pure module so import and scoring behavior remain deterministic.
 - The public maintenance sync only accepts three validated seasons and fixed nflverse URLs, with an atomic five-minute per-season cooldown; it grants no user admin privileges or arbitrary data writes.
-- Read public statistics using a server publishable client; privileged access is limited to bounded source sync and atomic saves of server-computed score batches, never caller-provided rows.
+- Read public statistics using a server publishable client; privileged access is limited to bounded source sync, server-computed score saves, and validated AI report saves and generation claims, never caller-provided rows.
 - Keep the percentile score model in a tested pure module; average tied ranks, neutral missing metrics, and offensive-snap games make cutoff results deterministic.
 - Save score batches and computation status in one database transaction; Radar reads only the latest loaded cutoff and detail links preserve that cutoff.
+- Use /player/$playerId as the canonical detail URL and retain /players/$playerId as a redirect so existing links keep working.
+- Scouting AI runs only in a server function using stored cutoff data and validated structured output; append report versions, read the latest, and atomically throttle duplicate generation requests.
