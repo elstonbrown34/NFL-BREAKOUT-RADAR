@@ -9,10 +9,13 @@ import { syncSeason } from '@/lib/nfl.functions';
 import { seasonStatusOptions } from '@/lib/nfl.queries';
 import { toast } from 'sonner';
 import { computeScores } from '@/lib/scores.functions';
+import { PageError, PageNotFound } from '@/components/page-states';
 export const Route = createFileRoute('/admin')({
   head: () => ({ meta: [{ title:'Data Admin | NFL Breakout Radar' },{ name:'description',content:'Sync 2024, 2025 and 2026 NFL player statistics and snap counts from nflverse.' },{ property:'og:title',content:'Data Admin | NFL Breakout Radar' },{ property:'og:description',content:'Season-by-season NFL data synchronization and import status.' },{ property:'og:type',content:'website' },{ name:'twitter:card',content:'summary_large_image' }] }),
   loader: ({ context }) => context.queryClient.ensureQueryData(seasonStatusOptions),
   component: Admin,
+  errorComponent: PageError,
+  notFoundComponent: PageNotFound,
 });
 function Admin() {
   const { data: seasons } = useSuspenseQuery(seasonStatusOptions);
@@ -42,6 +45,7 @@ function Admin() {
   }
   return <AppShell><div className="eyebrow"><Database size={13}/> Data operations</div><h1 className="page-title">Season data center</h1><p className="subtitle">The foundation behind every breakout signal. Real stats. Real opportunity.</p>
     <div className="flex flex-wrap items-center justify-between gap-4 mt-8 border-b border-border pb-6"><div><h2 className="section-heading">2026 Breakout Scores</h2><p className="text-muted-foreground text-sm mt-2">{latest2026 ? `Latest loaded cutoff: Week ${latest2026}` : 'Load the 2026 season first.'}</p></div><Button disabled={computing || busy !== null || !latest2026} onClick={recompute}><RefreshCw className={computing ? 'animate-spin' : ''}/>{computing ? 'Computing scores…' : 'Recompute 2026 scores'}</Button></div>
+    {!seasons.length && <div className="empty-state"><Database className="mx-auto text-muted-foreground"/><h3>No season records yet</h3><p>Season status will appear here when source data is available.</p></div>}
     <div className="sync-grid">{seasons.map(s => <section className="sync-card" key={s.season}>
       <div className="flex items-center justify-between"><h2>{s.season} <span className="text-muted-foreground text-xl">SEASON</span></h2>{s.status === 'complete' ? <CheckCircle2 className="text-primary" size={19}/> : s.status === 'error' ? <AlertCircle className="text-caution" size={19}/> : <Database className="text-muted-foreground" size={19}/>}</div>
       <div className="mt-3 text-xs text-muted-foreground">{busy === s.season ? 'Syncing nflverse data…' : s.status === 'complete' ? 'Season loaded' : s.status === 'error' ? 'Sync needs attention' : s.status === 'syncing' ? 'Sync in progress' : 'Awaiting first sync'}</div>

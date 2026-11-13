@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as BacktestRouteImport } from './routes/backtest'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as PlayerPlayerIdRouteImport } from './routes/player.$playerId'
 import { Route as PlayersPlayerIdRouteImport } from './routes/players.$playerId'
 
@@ -30,6 +31,11 @@ const BacktestRoute = BacktestRouteImport.update({
   path: '/backtest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlayerPlayerIdRoute = PlayerPlayerIdRouteImport.update({
   id: '/player/$playerId',
   path: '/player/$playerId',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/backtest': typeof BacktestRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/player/$playerId': typeof PlayerPlayerIdRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/backtest': typeof BacktestRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/player/$playerId': typeof PlayerPlayerIdRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
 }
@@ -60,20 +68,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/backtest': typeof BacktestRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/player/$playerId': typeof PlayerPlayerIdRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/admin' | '/backtest' | '/player/$playerId' | '/players/$playerId'
+    | '/'
+    | '/admin'
+    | '/backtest'
+    | '/how-it-works'
+    | '/player/$playerId'
+    | '/players/$playerId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/backtest' | '/player/$playerId' | '/players/$playerId'
+  to:
+    | '/'
+    | '/admin'
+    | '/backtest'
+    | '/how-it-works'
+    | '/player/$playerId'
+    | '/players/$playerId'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/backtest'
+    | '/how-it-works'
     | '/player/$playerId'
     | '/players/$playerId'
   fileRoutesById: FileRoutesById
@@ -82,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   BacktestRoute: typeof BacktestRoute
+  HowItWorksRoute: typeof HowItWorksRoute
   PlayerPlayerIdRoute: typeof PlayerPlayerIdRoute
   PlayersPlayerIdRoute: typeof PlayersPlayerIdRoute
 }
@@ -109,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BacktestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/player/$playerId': {
       id: '/player/$playerId'
       path: '/player/$playerId'
@@ -130,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   BacktestRoute: BacktestRoute,
+  HowItWorksRoute: HowItWorksRoute,
   PlayerPlayerIdRoute: PlayerPlayerIdRoute,
   PlayersPlayerIdRoute: PlayersPlayerIdRoute,
 }

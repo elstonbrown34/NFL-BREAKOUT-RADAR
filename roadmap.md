@@ -10,3 +10,5 @@
 - [x] Test report rules, real generation, reload, regeneration, and mobile layout.
 - [x] Build and test week-10 historical outcome evaluation for 2024 and 2025.
 - [x] Compute historical scores and verify Backtest charts, lists, and mobile layout.
+- [x] Add How It Works, navigation, footer, loading and empty states.
+- [x] Verify every page on mobile and desktop.

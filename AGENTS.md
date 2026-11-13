@@ -39,3 +39,4 @@ use the editor.
 - Use /player/$playerId as the canonical detail URL and retain /players/$playerId as a redirect so existing links keep working.
 - Scouting AI runs only in a server function using stored cutoff data and validated structured output; append report versions, read the latest, and atomically throttle duplicate generation requests.
 - Backtests evaluate saved week-10 scores in a tested pure module against weeks 11–18; count offensive-snap games and retain every eligible player in the baseline to avoid survivorship bias.
+- Share route loading, retry, and missing-content states through router defaults and explicit data-route boundaries so navigation remains available during failures.

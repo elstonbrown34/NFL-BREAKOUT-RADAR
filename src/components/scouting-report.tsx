@@ -19,9 +19,10 @@ export function ScoutingReport({report,season,cutoffWeek,playerId}:{report:Table
     } catch(e) {setError(e instanceof Error ? e.message:'The scouting report could not be generated.');}
     finally {setBusy(false);}
   }
-  return <section className="scouting-section" aria-label="AI Scouting Report"><div className="flex flex-wrap justify-between items-center gap-4"><div><div className="eyebrow"><Sparkles size={13}/>Player intelligence</div><h2 className="section-heading">AI Scouting Report</h2></div><Button variant={report ? 'outline':'default'} onClick={run} disabled={busy}>{busy ? <LoaderCircle className="animate-spin"/>:report ? <RefreshCw/>:<Sparkles/>}{busy ? 'Generating report…':report ? 'Regenerate':'Generate Scouting Report'}</Button></div>
+  return <section className="scouting-section" aria-label="AI Scouting Report"><div className="report-heading"><div className="min-w-0"><div className="eyebrow"><Sparkles size={13}/>Player intelligence</div><h2 className="section-heading">AI Scouting Report</h2></div><Button variant={report ? 'outline':'default'} onClick={run} disabled={busy}>{busy ? <LoaderCircle className="animate-spin"/>:report ? <RefreshCw/>:<Sparkles/>}{busy ? 'Generating report…':report ? 'Regenerate':'Generate Scouting Report'}</Button></div>
     {error && <p role="alert" className="text-destructive mt-4">{error}</p>}
     {busy && <p role="status" className="text-muted-foreground mt-4">Analyzing season numbers and weekly trends…</p>}
+    {!report && !busy && <p className="text-muted-foreground mt-5">No scouting report yet for this season and week.</p>}
     {report && <div className="report-body"><div><h3>Why he's on the radar</h3><p>{report.why_on_radar}</p></div><div><h3>What could stop it</h3><p>{report.risks}</p></div><div><h3>Verdict</h3><p className="report-verdict">{report.verdict}</p></div></div>}
     {report && <p className="text-xs text-muted-foreground mt-5">AI generated from the data above. Not based on news or injury reports.</p>}
   </section>;
