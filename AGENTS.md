@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## App architecture
+- Load all NFL data through TanStack server functions; never download CSVs or query the database in browser code.
+- Keep CSV filtering, name joining, and trend ranking in a tested pure module so import and scoring behavior remain deterministic.
+- The public maintenance sync only accepts three validated seasons and fixed nflverse URLs, with an atomic five-minute per-season cooldown; it grants no user admin privileges or arbitrary data writes.
+- Read public statistics using a server publishable client and use the privileged client only for bounded source synchronization.
