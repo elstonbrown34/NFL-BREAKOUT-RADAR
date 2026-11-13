@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      breakout_score_runs: {
+        Row: {
+          computed_at: string
+          cutoff_week: number
+          player_count: number
+          season: number
+        }
+        Insert: {
+          computed_at?: string
+          cutoff_week: number
+          player_count?: number
+          season: number
+        }
+        Update: {
+          computed_at?: string
+          cutoff_week?: number
+          player_count?: number
+          season?: number
+        }
+        Relationships: []
+      }
+      breakout_scores: {
+        Row: {
+          avg_snap_pct: number
+          breakout_score: number
+          cutoff_week: number
+          efficiency_score: number
+          games: number
+          headshot_url: string | null
+          opportunity_score: number
+          player_id: string
+          player_name: string
+          position: string
+          ppg: number
+          rank: number
+          role_score: number
+          season: number
+          team: string
+        }
+        Insert: {
+          avg_snap_pct: number
+          breakout_score: number
+          cutoff_week: number
+          efficiency_score: number
+          games: number
+          headshot_url?: string | null
+          opportunity_score: number
+          player_id: string
+          player_name: string
+          position: string
+          ppg: number
+          rank: number
+          role_score: number
+          season: number
+          team: string
+        }
+        Update: {
+          avg_snap_pct?: number
+          breakout_score?: number
+          cutoff_week?: number
+          efficiency_score?: number
+          games?: number
+          headshot_url?: string | null
+          opportunity_score?: number
+          player_id?: string
+          player_name?: string
+          position?: string
+          ppg?: number
+          rank?: number
+          role_score?: number
+          season?: number
+          team?: string
+        }
+        Relationships: []
+      }
       player_weeks: {
         Row: {
           carries: number | null
@@ -116,6 +191,10 @@ export type Database = {
     }
     Functions: {
       claim_season_sync: { Args: { p_season: number }; Returns: boolean }
+      save_breakout_scores: {
+        Args: { p_cutoff_week: number; p_scores: Json; p_season: number }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

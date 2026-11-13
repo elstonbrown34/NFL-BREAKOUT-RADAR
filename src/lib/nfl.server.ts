@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
+import type { PlayerWeek } from './nfl-data';
 export function publicClient() {
   const url = process.env['SUPABASE_URL'];
   const key = process.env['SUPABASE_PUBLISHABLE_KEY'];
@@ -13,4 +14,16 @@ export function publicClient() {
       return fetch(input, { ...init, headers });
     } },
   });
+}
+export async function readPlayerWeeks(season: number, cutoffWeek: number, playerId?: string) {
+  const db = publicClient();
+  const rows: PlayerWeek[] = [];
+  for (let offset = 0; ; offset += 1000) {
+    let query = db.from('player_weeks').select('*').eq('season', season).lte('week', cutoffWeek).order('week').order('player_id');
+    if (playerId) query = query.eq('player_id', playerId);
+    const result = await query.range(offset, offset + 999);
+    if (result.error) throw new Error('Player statistics could not be loaded.');
+    rows.push(...result.data);
+    if (result.data.length < 1000) return rows;
+  }
 }
