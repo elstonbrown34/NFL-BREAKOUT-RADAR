@@ -16,7 +16,7 @@ export const Route = createFileRoute('/backtest')({
 const percent = (rate:number|null)=>rate === null ? '—' : `${(rate*100).toFixed(1)}%`;
 function BacktestError({error}:ErrorComponentProps) {
   const router = useRouter();
-  return <AppShell><h1 className="page-title">Backtest unavailable</h1><p role="alert" className="subtitle">{error.message}</p><Button className="mt-6" onClick={()=>router.invalidate()}><RefreshCw/>Retry</Button></AppShell>;
+  return <AppShell><h1 className="page-title">Backtest unavailable</h1><p role="alert" className="subtitle">{error instanceof Error ? error.message : 'Historical results could not be loaded.'}</p><Button className="mt-6" onClick={()=>router.invalidate()}><RefreshCw/>Retry</Button></AppShell>;
 }
 function BacktestPage() {
   const {data:seasons} = useSuspenseQuery(backtestOptions);
