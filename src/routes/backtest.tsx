@@ -26,9 +26,10 @@ function BacktestPage() {
     <h1 className="page-title">Breakout model backtest</h1>
     <p className="subtitle">Rankings frozen at Week 10. Outcomes measured in Weeks 11–18.</p>
     <div className="backtest-stats">{seasons.map(s=><div className="stat-card" key={s.season}>
-      <div className="stat-label"><span>{s.season} SEASON · TOP 10</span><ChartColumn size={16}/></div>
-      <div className="flex items-baseline flex-wrap gap-x-4 gap-y-2 my-4"><strong className="backtest-rate text-primary">{percent(s.top10.rate)}</strong><span className="text-muted-foreground">vs <strong className="text-foreground text-xl">{percent(s.baseline.rate)}</strong> baseline</span></div>
-      <div className="flex flex-wrap justify-between gap-3 text-sm"><span className="text-muted-foreground">{s.top10.hits}/{s.top10.total} Top 10 hits · {s.baseline.hits}/{s.baseline.total} eligible hits</span><strong className="text-primary">{s.lift === null ? 'Lift unavailable' : `${s.lift.toFixed(2)}× random`}</strong></div>
+      <div className="stat-label"><span>{s.season} SEASON · TOP 20</span><ChartColumn size={16}/></div>
+      <div className="flex items-baseline flex-wrap gap-x-4 gap-y-2 my-4"><strong className="backtest-rate text-primary">{percent(s.top20.rate)}</strong><span className="text-muted-foreground">vs <strong className="text-foreground text-xl">{percent(s.baseline.rate)}</strong> baseline</span></div>
+      <div className="flex flex-wrap justify-between gap-3 text-sm"><span className="text-muted-foreground">{s.top20.hits}/{s.top20.total} Top 20 hits · {s.baseline.hits}/{s.baseline.total} eligible hits</span><strong className="text-primary">{s.baseline.rate && s.top20.rate !== null ? `${(s.top20.rate/s.baseline.rate).toFixed(2)}× random` : 'Lift unavailable'}</strong></div>
+      <div className="mt-4 pt-3 border-t border-border text-sm text-muted-foreground">Top 10: <strong className="text-foreground">{percent(s.top10.rate)}</strong> ({s.top10.hits}/{s.top10.total}) · {s.lift === null ? 'lift unavailable' : `${s.lift.toFixed(2)}× random`}</div>
     </div>)}</div>
     <section className="backtest-section"><h2 className="section-heading">Hit rates by selection</h2><BacktestChart seasons={seasons}/></section>
     <p className="text-muted-foreground text-sm leading-relaxed border-y border-border py-5">Breakout Hit: at least 4 games in Weeks 11–18, at least 12 PPR points per game for WR/RB or 9 for TE, and at least 4 PPR points per game above the Week 10 average. Games count when the player records offensive snaps; absent players remain in the baseline.</p>

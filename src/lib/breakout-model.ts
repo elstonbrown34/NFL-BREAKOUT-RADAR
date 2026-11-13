@@ -9,6 +9,8 @@ const mean = (rows: PlayerWeek[], field: keyof PlayerWeek) => {
   const values = rows.map(r => r[field]).filter((v): v is number => typeof v === 'number' && Number.isFinite(v));
   return values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
 };
+export const LIMITED_SNAP_PCT = 0.2;
+export const isLimitedGame = (row: PlayerWeek) => (row.offense_snaps ?? 0) > 0 && row.offense_pct !== null && row.offense_pct < LIMITED_SNAP_PCT;
 const difference = (a: number | null, b: number | null) => a === null || b === null ? null : a - b;
 // Tied values use the average zero-based rank. A singleton or missing metric is neutral.
 export function percentile(value: number | null, peers: (number | null)[]) {
@@ -33,7 +35,9 @@ export function breakoutMetrics(rows: PlayerWeek[], season: number, cutoffWeek: 
     const snap = mean(games,'offense_pct');
     const ppg = sum(games,'fantasy_points_ppr') / games.length;
     if (games.length < 4 || opportunities < 15 || snap === null || snap > .75 || ppg >= 12) return [];
-    const recent = games.slice(-3), earlier = games.slice(0,-3);
+    // Games under 20% snap share are treated as possible injury exits, not role changes.
+    const trendGames = games.filter(g => !isLimitedGame(g));
+    const recent = trendGames.slice(-3), earlier = trendGames.slice(0,-3);
     const snaps = sum(games,'offense_snaps');
     return [{ season, cutoff_week: cutoffWeek, player_id: last.player_id, player_name: last.player_name, position: last.position, team: last.team, headshot_url: last.headshot_url,
       games: games.length, ppg, avg_snap_pct: snap,

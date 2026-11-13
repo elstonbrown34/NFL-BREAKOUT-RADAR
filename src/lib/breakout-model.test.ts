@@ -57,3 +57,11 @@ describe('metric and percentile rules', () => {
     expect(percentile(2,[1,2,2,3])).toBe(50); expect(percentile(null,[1,2])).toBe(50);
   });
 });
+import { isLimitedGame } from './breakout-model';
+import { describe as d2, it as i2, expect as e2 } from 'vitest';
+d2('limited games', () => {
+  i2('flags games under 20% snap share only', () => {
+    e2(isLimitedGame({ offense_snaps: 5, offense_pct: 0.19 } as never)).toBe(true);
+    e2(isLimitedGame({ offense_snaps: 15, offense_pct: 0.2 } as never)).toBe(false);
+  });
+});

@@ -2,7 +2,8 @@ import { LineChart,Line,XAxis,YAxis,CartesianGrid,Tooltip,ResponsiveContainer,Le
 import type {PlayerWeek} from '@/lib/nfl-data';
 export function PlayerTrendChart({weeks,cutoffWeek}:{weeks:PlayerWeek[];cutoffWeek:number}) {
   const data=Array.from({length:cutoffWeek},(_,i)=>{
-    const row=weeks.find(w=>w.week===i+1);
+    const found=weeks.find(w=>w.week===i+1);
+    const row=found && (found.offense_snaps ?? 0)>0 ? found : undefined;
     return {week:i+1,snap:row?.offense_pct==null ? null:row.offense_pct*100,target:row?.target_share==null ? null:row.target_share*100};
   });
   return <div className="trend-chart" role="img" aria-label="Weekly snap share and target share line chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={data} margin={{top:12,right:16,bottom:8,left:0}}>
