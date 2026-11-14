@@ -36,6 +36,13 @@
       "when": 1794693341378,
       "tag": "0004_data_keyed_scouting_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794695299988,
+      "tag": "0005_ask_radar_filters_cache_and_standings",
+      "breakpoints": true
     }
   ]
 }

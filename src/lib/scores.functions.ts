@@ -24,13 +24,11 @@ export const getScores = createServerFn({ method:'GET' }).handler(async () => {
   const latest = await db.from('player_weeks').select('week').eq('season',2026).order('week',{ascending:false}).limit(1).maybeSingle();
   if (latest.error) throw new Error('Loaded week could not be checked.');
   const cutoffWeek = latest.data?.week ?? 0;
-  if (!cutoffWeek) return { players:[], cutoffWeek, computedAt:null as string | null };
-  const [scores, run] = await Promise.all([
-    db.from('breakout_scores').select('*').eq('season',2026).eq('cutoff_week',cutoffWeek).order('rank').limit(2000),
-    db.from('breakout_score_runs').select('computed_at').eq('season',2026).eq('cutoff_week',cutoffWeek).maybeSingle(),
-  ]);
-  if (scores.error || run.error) throw new Error('Breakout scores could not be loaded.');
-  return { players:scores.data, cutoffWeek, computedAt:run.data?.computed_at ?? null };
+  if (!cutoffWeek) return { players:[] as import('./radar-filters').RadarPlayer[], cutoffWeek, computedAt:null as string | null };
+  const {radarContext}=await import('./radar-context.server');
+  const [players,run]=await Promise.all([radarContext(2026,cutoffWeek),db.from('breakout_score_runs').select('computed_at').eq('season',2026).eq('cutoff_week',cutoffWeek).maybeSingle()]);
+  if(run.error) throw new Error('Breakout scores could not be loaded.');
+  return {players,cutoffWeek,computedAt:run.data?.computed_at??null};
 });
 
 export const getPlayerScore = createServerFn({ method:'GET' }).inputValidator(cutoffSchema.extend({ playerId:z.string().min(1).max(100) })).handler(async ({ data }) => {

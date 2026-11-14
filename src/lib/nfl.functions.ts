@@ -44,6 +44,8 @@ export const syncSeason = createServerFn({ method: 'POST' }).inputValidator(seas
       const { error } = await db.from('player_weeks').upsert(rows.slice(i,i+500), { onConflict: 'season,week,player_id' });
       if (error) { console.error('Season upsert failed',error.message); throw new Error('Could not save the season. You can retry the sync safely.'); }
     }
+    const {syncTeamQuality}=await import('./radar-standings.server');
+    await syncTeamQuality(data.season,Math.max(...rows.map(r=>r.week)));
     const summary = { status:'complete', completed_at: new Date().toISOString(), row_count: rows.length, latest_week: Math.max(...rows.map(r => r.week)), message: null };
     const saved = await db.from('season_syncs').update(summary).eq('season',data.season);
     if (saved.error) throw new Error('Data saved, but the sync summary could not be updated.');

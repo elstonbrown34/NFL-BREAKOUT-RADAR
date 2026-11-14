@@ -40,3 +40,6 @@ use the editor.
 - Scouting AI runs only in a server function using stored cutoff scores, position percentiles, and full-cohort recomputed three-week comparisons; cache validated summaries by a SHA-256 data key with a unique durable claim, including failed attempts, so unchanged data never repeats inference and failures never block the player page.
 - Backtests evaluate saved week-10 scores in a tested pure module against weeks 11–18; count offensive-snap games and retain every eligible player in the baseline to avoid survivorship bias.
 - Share route loading, retry, and missing-content states through router defaults and explicit data-route boundaries so navigation remains available during failures.
+- Ask the Radar AI translates questions only; tested pure filters apply stored scores, full-cohort three-week comparisons, and cutoff standings so inference never supplies player data.
+- Persist question claims and private logs by normalized question, season, and week; enforce the approved per-browser rolling-hour limit with a server-issued cookie and atomic database claim to bound repeat inference.
+- Refresh team quality from the fixed nflverse schedule URL during weekly sync; rank cutoff win percentages with alphabetical tie-breaking so future results never affect historical classifications.

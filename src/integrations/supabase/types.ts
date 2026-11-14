@@ -155,6 +155,123 @@ export type Database = {
         }
         Relationships: []
       }
+      radar_queries: {
+        Row: {
+          cached: boolean
+          created_at: string
+          cutoff_week: number
+          id: string
+          question: string
+          result_count: number
+          returned_json: Json | null
+          season: number
+          validation_passed: boolean
+        }
+        Insert: {
+          cached?: boolean
+          created_at?: string
+          cutoff_week: number
+          id?: string
+          question: string
+          result_count?: number
+          returned_json?: Json | null
+          season: number
+          validation_passed?: boolean
+        }
+        Update: {
+          cached?: boolean
+          created_at?: string
+          cutoff_week?: number
+          id?: string
+          question?: string
+          result_count?: number
+          returned_json?: Json | null
+          season?: number
+          validation_passed?: boolean
+        }
+        Relationships: []
+      }
+      radar_question_cache: {
+        Row: {
+          created_at: string
+          cutoff_week: number
+          filters: Json | null
+          question: string
+          season: number
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          cutoff_week: number
+          filters?: Json | null
+          question: string
+          season: number
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          cutoff_week?: number
+          filters?: Json | null
+          question?: string
+          season?: number
+          status?: string
+        }
+        Relationships: []
+      }
+      radar_schedule_syncs: {
+        Row: {
+          season: number
+          started_at: string
+        }
+        Insert: {
+          season: number
+          started_at?: string
+        }
+        Update: {
+          season?: number
+          started_at?: string
+        }
+        Relationships: []
+      }
+      radar_search_requests: {
+        Row: {
+          requested_at: string
+          visitor_id: string
+        }
+        Insert: {
+          requested_at?: string
+          visitor_id: string
+        }
+        Update: {
+          requested_at?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
+      radar_team_quality: {
+        Row: {
+          cutoff_week: number
+          quality: string
+          season: number
+          team: string
+          win_pct: number
+        }
+        Insert: {
+          cutoff_week: number
+          quality: string
+          season: number
+          team: string
+          win_pct: number
+        }
+        Update: {
+          cutoff_week?: number
+          quality?: string
+          season?: number
+          team?: string
+          win_pct?: number
+        }
+        Relationships: []
+      }
       scouting_generation_locks: {
         Row: {
           cutoff_week: number
@@ -288,6 +405,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_radar_schedule_sync: {
+        Args: { p_season: number }
+        Returns: boolean
+      }
+      claim_radar_search: { Args: { p_visitor: string }; Returns: boolean }
       claim_scouting_generation: {
         Args: { p_cutoff_week: number; p_player_id: string; p_season: number }
         Returns: boolean

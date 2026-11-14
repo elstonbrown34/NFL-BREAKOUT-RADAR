@@ -1,0 +1,16 @@
+import { describe,it,expect } from 'vitest';
+import { applyRadarFilters,filtersSchema,normalizeQuestion,searchInput,removeChip,filterChips,type RadarPlayer } from './radar-filters';
+const player=(changes:Partial<RadarPlayer>={}):RadarPlayer=>({season:2026,cutoff_week:10,player_id:'a',player_name:'A',position:'TE',team:'LA',headshot_url:null,games:6,ppg:9,avg_snap_pct:.5,role_score:80,opportunity_score:65,efficiency_score:50,breakout_score:68,rank:1,changes:{overall:2,role:0,opportunity:3,efficiency:-2},team_quality:'bad',...changes});
+describe('Radar filter rules',()=>{
+  it('elite role starts at 80',()=>{expect(applyRadarFilters([player(),player({role_score:79.9})],{min_role:80})).toHaveLength(1);});
+  it('strong opportunity starts at 65',()=>{expect(applyRadarFilters([player(),player({opportunity_score:64.9})],{min_opportunity:65})).toHaveLength(1);});
+  it('rising requires a positive chosen three-week change, not zero or missing',()=>{expect(applyRadarFilters([player(),player({changes:{overall:0,role:0,opportunity:0,efficiency:0}}),player({changes:{overall:null,role:null,opportunity:null,efficiency:null}})],{trend:'rising',trend_component:'opportunity'})).toHaveLength(1);});
+  it('falling requires a negative chosen change',()=>{expect(applyRadarFilters([player()],{trend:'falling',trend_component:'efficiency'})).toHaveLength(1);expect(applyRadarFilters([player()],{trend:'falling',trend_component:'opportunity'})).toHaveLength(0);});
+  it('top 10 under 10 PPR intersects filters before limiting',()=>{const rows=Array.from({length:20},(_,i)=>player({player_id:String(i),ppg:i<5?11:9,rank:i+1,breakout_score:100-i}));const results=applyRadarFilters(rows,{limit:10,max_ppr_per_game:10});expect(results).toHaveLength(10);expect(results[0]?.player_id).toBe('5');});
+  it('clamps scores to 0–100 and limit to 1–50 while dropping unknown fields',()=>{expect(filtersSchema.parse({min_role:150,min_efficiency:-5,limit:99,injured:true})).toEqual({min_role:100,min_efficiency:0,limit:50});});
+  it('rejects invalid enum values and inverted ranges',()=>{expect(filtersSchema.safeParse({trend:'flat'}).success).toBe(false);expect(filtersSchema.safeParse({min_breakout_score:90,max_breakout_score:20}).success).toBe(false);});
+  it('caps questions at 200 characters',()=>{expect(searchInput.safeParse({question:'x'.repeat(200),season:2026,cutoffWeek:10}).success).toBe(true);expect(searchInput.safeParse({question:'x'.repeat(201),season:2026,cutoffWeek:10}).success).toBe(false);});
+  it('normalizes identical questions for weekly caching',()=>{expect(normalizeQuestion('  Elite TEs  ')).toBe('elite tes');});
+  it('removes a position without discarding other filters',()=>{const f={positions:['WR','TE'] as ('WR'|'TE')[],min_role:80};const chip=filterChips(f)[0];if(!chip) throw new Error('Expected position chip');expect(removeChip(f,chip)).toEqual({positions:['TE'],min_role:80});});
+  it('does not classify missing standings as bad',()=>{expect(applyRadarFilters([player({team_quality:null})],{team_quality:'bad'})).toHaveLength(0);});
+});
