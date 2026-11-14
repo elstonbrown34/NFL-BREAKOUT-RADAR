@@ -14,3 +14,7 @@
 - [x] Verify every page on mobile and desktop.
 - [x] Replace manual scouting reports with data-keyed automatic reports below Breakout Score.
 - [x] Verify report caching, invalid-output handling, and desktop/mobile player pages.
+- [ ] Add Ask the Radar question translation, validated filters, removable chips, and matching empty states.
+- [ ] Add nflverse cutoff-based team quality and three-week score comparisons.
+- [ ] Add weekly question caching, private query logs, and visitor search limits (awaiting custom-limit confirmation).
+- [ ] Test filtering rules and verify real searches, caching, and mobile layout.
