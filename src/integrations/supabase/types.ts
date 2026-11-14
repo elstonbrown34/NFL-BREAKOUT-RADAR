@@ -176,6 +176,39 @@ export type Database = {
         }
         Relationships: []
       }
+      scouting_report_versions: {
+        Row: {
+          cutoff_week: number
+          data_fingerprint: string
+          generated_at: string
+          id: string
+          model: string
+          player_id: string
+          report: Json | null
+          season: number
+        }
+        Insert: {
+          cutoff_week: number
+          data_fingerprint: string
+          generated_at?: string
+          id?: string
+          model: string
+          player_id: string
+          report?: Json | null
+          season: number
+        }
+        Update: {
+          cutoff_week?: number
+          data_fingerprint?: string
+          generated_at?: string
+          id?: string
+          model?: string
+          player_id?: string
+          report?: Json | null
+          season?: number
+        }
+        Relationships: []
+      }
       scouting_reports: {
         Row: {
           cutoff_week: number

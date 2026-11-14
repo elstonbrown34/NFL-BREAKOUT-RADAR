@@ -1,28 +1,46 @@
-import { describe,it,expect } from 'vitest';
-import {reportSchema,scoutingNumbers} from './scouting-data';
+import {describe,it,expect} from 'vitest';
+import {reportSchema,scoutingNumbers,scoutingFingerprint} from './scouting-data';
 import type {BreakoutScore} from './breakout-model';
-import type {PlayerWeek} from './nfl-data';
-const report={radar_sentences:['His role is growing.','He has 20 targets.'],risk_sentences:['Four games is a small sample.'],verdict:'Buy'};
-describe('scouting report rules',()=>{
-  it('requires exactly two to three radar sentences',()=>{
+const player:BreakoutScore={season:2026,cutoff_week:10,player_id:'a',player_name:'Test',position:'WR',team:'NYJ',headshot_url:null,games:8,ppg:8.123,avg_snap_pct:.5,role_score:60,opportunity_score:70,efficiency_score:50,breakout_score:62,rank:1};
+const report={why_rising:'His role score increased. Opportunity is strong.',what_to_watch:'The numbers do not establish why his role changed.',verdict:'Watch for sustained opportunity.'};
+describe('scouting summary rules',()=>{
+  it('accepts exactly the three requested fields',()=>{
     expect(reportSchema.safeParse(report).success).toBe(true);
-    expect(reportSchema.safeParse({...report,radar_sentences:['One.']}).success).toBe(false);
-    expect(reportSchema.safeParse({...report,radar_sentences:['One.','Two.','Three.','Four.']}).success).toBe(false);
+    expect(reportSchema.safeParse({...report,news:'extra'}).success).toBe(false);
+    expect(reportSchema.safeParse({why_rising:report.why_rising,verdict:report.verdict}).success).toBe(false);
   });
-  it('requires one to two risk sentences',()=>{
-    expect(reportSchema.safeParse({...report,risk_sentences:[]}).success).toBe(false);
-    expect(reportSchema.safeParse({...report,risk_sentences:['One.','Two.']}).success).toBe(true);
-    expect(reportSchema.safeParse({...report,risk_sentences:['One.','Two.','Three.']}).success).toBe(false);
+  it('requires one to two sentences for why_rising',()=>{
+    expect(reportSchema.safeParse({...report,why_rising:''}).success).toBe(false);
+    expect(reportSchema.safeParse({...report,why_rising:'One. Two. Three.'}).success).toBe(false);
   });
-  it('allows only Strong Buy, Buy, or Watch verdicts',()=>{
-    for(const verdict of ['Strong Buy','Buy','Watch']) expect(reportSchema.safeParse({...report,verdict}).success).toBe(true);
-    expect(reportSchema.safeParse({...report,verdict:'Sell'}).success).toBe(false);
+  it('requires one to two sentences for what_to_watch',()=>{
+    expect(reportSchema.safeParse({...report,what_to_watch:''}).success).toBe(false);
+    expect(reportSchema.safeParse({...report,what_to_watch:'One. Two. Three.'}).success).toBe(false);
   });
-  it('never supplies another player, season, or future week to AI',()=>{
-    const player={season:2026,cutoff_week:4,player_id:'a',games:4,ppg:8,avg_snap_pct:.5} as BreakoutScore;
-    const row={season:2026,week:4,player_id:'a',offense_snaps:40,targets:5,carries:2,offense_pct:.5,target_share:.2} as PlayerWeek;
-    const data=scoutingNumbers(player,[row,{...row,week:5,targets:100},{...row,season:2025,targets:200},{...row,player_id:'b',targets:300}]);
-    expect(data.season_numbers.targets).toBe(5); expect(data.season_numbers.carries).toBe(2);
-    expect(data.weekly_trend).toHaveLength(1); expect(data.weekly_trend[0]?.snap_share_pct).toBe(50);
+  it('requires a single short verdict sentence',()=>{
+    expect(reportSchema.safeParse({...report,verdict:'Watch. Then buy.'}).success).toBe(false);
+    expect(reportSchema.safeParse({...report,verdict:'x'.repeat(241)}).success).toBe(false);
+  });
+  it('compares each score to exactly three calendar weeks earlier',()=>{
+    const previous={...player,cutoff_week:7,role_score:40,opportunity_score:75,efficiency_score:30,breakout_score:52};
+    const data=scoutingNumbers(player,[player,{...player,player_id:'b',role_score:20}],[previous,{...previous,cutoff_week:8,role_score:99}]);
+    expect(data.role.change_last_3_weeks).toBe(20);
+    expect(data.opportunity.change_last_3_weeks).toBe(-5);
+    expect(data.efficiency.change_last_3_weeks).toBe(20);
+    expect(data.breakout.change_last_3_weeks).toBe(10);
+  });
+  it('uses null for an ineligible or missing earlier comparison',()=>{
+    expect(scoutingNumbers(player,[player],[{...player,season:2025,cutoff_week:7}]).role.change_last_3_weeks).toBeNull();
+  });
+  it('only sends requested data and position-relative percentiles',()=>{
+    const data=scoutingNumbers(player,[player,{...player,player_id:'b',role_score:20},{...player,player_id:'c',position:'RB',role_score:99},{...player,player_id:'d',cutoff_week:9,role_score:99}],[]);
+    expect(data.role.percentile).toBe(100);
+    expect(data.ppr_per_game).toBe(8.1);
+    expect(Object.keys(data).sort()).toEqual(['season','week','position','team','ppr_per_game','breakout','role','opportunity','efficiency'].sort());
+  });
+  it('keeps an unchanged data cache key and changes it when weekly data changes',async()=>{
+    const data=scoutingNumbers(player,[player],[]);
+    expect(await scoutingFingerprint(data)).toBe(await scoutingFingerprint({...data}));
+    expect(await scoutingFingerprint(data)).not.toBe(await scoutingFingerprint({...data,ppr_per_game:9}));
   });
 });

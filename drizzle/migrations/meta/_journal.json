@@ -29,6 +29,13 @@
       "when": 1794598761466,
       "tag": "0003_preserve_reports_on_score_recompute",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794693341378,
+      "tag": "0004_data_keyed_scouting_reports",
+      "breakpoints": true
     }
   ]
 }

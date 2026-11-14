@@ -1,36 +1,30 @@
 import { z } from 'zod';
-import { isLimitedGame, type BreakoutScore } from './breakout-model';
-import type { PlayerWeek } from './nfl-data';
+import { percentile, type BreakoutScore } from './breakout-model';
 
-export const scoutingInput = z.object({season:z.union([z.literal(2024),z.literal(2025),z.literal(2026)]),cutoffWeek:z.number().int().min(1).max(18),playerId:z.string().min(1).max(100)});
-export const reportSchema = z.object({
-  radar_sentences:z.array(z.string().trim().min(1).max(600)).min(2).max(3),
-  risk_sentences:z.array(z.string().trim().min(1).max(600)).min(1).max(2),
-  verdict:z.enum(['Strong Buy','Buy','Watch']),
-}).strict();
-export const SCOUTING_SYSTEM = 'You are an NFL front office analyst. Only use the numbers provided. Do not invent stats, injuries or news. If the sample is small, say so. Round all numbers to 1 decimal place. Treat games under 20% snap share as possible injury exits, not role changes.';
+export const scoutingInput = z.object({season:z.union([z.literal(2024),z.literal(2025),z.literal(2026)]),cutoffWeek:z.number().int().min(1).max(18),playerId:z.string().min(1).max(100)}).strict();
+const sentences = (min:number,max:number) => z.string().trim().min(1).max(900).refine(text => {
+  const count = text.split(/(?<=[.!?])\s+(?=[A-Z"'])/).filter(Boolean).length;
+  return count >= min && count <= max;
+}, 'Unexpected sentence count');
+export const reportSchema = z.object({why_rising:sentences(1,2),what_to_watch:sentences(1,2),verdict:sentences(1,1).pipe(z.string().max(240))}).strict();
+export type ScoutingSummary = z.infer<typeof reportSchema>;
+export const SCOUTING_SYSTEM = 'You are an NFL scout. Using ONLY the data provided, write a short scouting report. Do not invent stats, injuries or news. If the data does not support a conclusion, say so.';
 export const reportJsonSchema = {
-  type:'object', additionalProperties:false,
+  type:'object',additionalProperties:false,
   properties:{
-    radar_sentences:{type:'array',minItems:2,maxItems:3,items:{type:'string'},description:'Two to three sentences for Why he\'s on the radar, citing specific supplied numbers.'},
-    risk_sentences:{type:'array',minItems:1,maxItems:2,items:{type:'string'},description:'One to two sentences for What could stop it. Only data-supported risks; do not assert a crowded depth chart without evidence.'},
-    verdict:{type:'string',enum:['Strong Buy','Buy','Watch']},
-  },required:['radar_sentences','risk_sentences','verdict'],
+    why_rising:{type:'string',description:'One to two sentences; do not assume the player is rising if the numbers do not support it.'},
+    what_to_watch:{type:'string',description:'One to two sentences about data-supported uncertainty or signals to watch.'},
+    verdict:{type:'string',description:'One short sentence, grounded only in the supplied data.'},
+  },required:['why_rising','what_to_watch','verdict'],
 };
-export function scoutingNumbers(player:BreakoutScore, weeks:PlayerWeek[]) {
-  const eligibleWeeks = weeks.filter(w => w.season===player.season && w.player_id===player.player_id && w.week<=player.cutoff_week).sort((a,b)=>a.week-b.week);
-  const games = eligibleWeeks.filter(w=>(w.offense_snaps ?? 0)>0);
-  const total = (field:keyof PlayerWeek) => games.reduce((n,w)=>n+(typeof w[field]==='number' ? w[field] as number : 0),0);
-  return roundNumbers({
-    player, season_numbers:{games:player.games,ppr_per_game:player.ppg,average_snap_share_pct:player.avg_snap_pct*100,
-      targets:total('targets'),carries:total('carries'),offensive_snaps:total('offense_snaps'),receiving_yards:total('receiving_yards'),rushing_yards:total('rushing_yards'),receiving_epa:total('receiving_epa'),rushing_epa:total('rushing_epa')},
-    weekly_trend:eligibleWeeks.map(w=>({week:w.week,offensive_snaps:w.offense_snaps,snap_share_pct:w.offense_pct===null ? null:w.offense_pct*100,target_share_pct:w.target_share===null ? null:w.target_share*100,targets:w.targets,carries:w.carries,ppr:w.fantasy_points_ppr,wopr:w.wopr,limited_possible_injury:isLimitedGame(w)})),
-    scoring_context:'Scores are 0–100 percentiles against eligible players at the same position, not probabilities. Role measures snap and target share growth; Opportunity measures WOPR for WR/TE or touches per snap for RB; Efficiency measures yards per snap and EPA per opportunity. Missing metrics are neutral. Season totals and PPR per game use games with offensive snaps. Depth chart, injuries and news are not provided. Games under 20% snap share are flagged limited_possible_injury and excluded from snap and target share trends.',
-  });
+export function scoutingNumbers(player:BreakoutScore, current:BreakoutScore[], previous:BreakoutScore[]) {
+  const peers = current.filter(p => p.season===player.season && p.cutoff_week===player.cutoff_week && p.position===player.position);
+  const prior = previous.find(p => p.player_id===player.player_id && p.season===player.season && p.cutoff_week===player.cutoff_week-3);
+  const round = (n:number) => Math.round(n*10)/10;
+  const signal = (field:'breakout_score'|'role_score'|'opportunity_score'|'efficiency_score') => ({score:round(player[field]),percentile:round(percentile(player[field],peers.map(p=>p[field]))),change_last_3_weeks:prior ? round(player[field]-prior[field]) : null});
+  return {season:player.season,week:player.cutoff_week,position:player.position,team:player.team,ppr_per_game:round(player.ppg),breakout:signal('breakout_score'),role:signal('role_score'),opportunity:signal('opportunity_score'),efficiency:signal('efficiency_score')};
 }
-function roundNumbers<T>(value:T):T {
-  if (typeof value==='number') return (Number.isFinite(value) ? Math.round(value*10)/10 : value) as T;
-  if (Array.isArray(value)) return value.map(roundNumbers) as T;
-  if (value && typeof value==='object') return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,roundNumbers(v)])) as T;
-  return value;
+export async function scoutingFingerprint(data:ReturnType<typeof scoutingNumbers>) {
+  const digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(data)));
+  return Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,'0')).join('');
 }

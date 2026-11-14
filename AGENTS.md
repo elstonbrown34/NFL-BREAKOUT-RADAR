@@ -37,6 +37,6 @@ use the editor.
 - Keep the percentile score model in a tested pure module; average tied ranks, neutral missing metrics, and offensive-snap games make cutoff results deterministic.
 - Save score batches and computation status in one database transaction; Radar reads only the latest loaded cutoff and detail links preserve that cutoff.
 - Use /player/$playerId as the canonical detail URL and retain /players/$playerId as a redirect so existing links keep working.
-- Scouting AI runs only in a server function using stored cutoff data and validated structured output; append report versions, read the latest, and atomically throttle duplicate generation requests.
+- Scouting AI runs only in a server function using stored cutoff scores, position percentiles, and full-cohort recomputed three-week comparisons; cache validated summaries by a SHA-256 data key with a unique durable claim, including failed attempts, so unchanged data never repeats inference and failures never block the player page.
 - Backtests evaluate saved week-10 scores in a tested pure module against weeks 11–18; count offensive-snap games and retain every eligible player in the baseline to avoid survivorship bias.
 - Share route loading, retry, and missing-content states through router defaults and explicit data-route boundaries so navigation remains available during failures.

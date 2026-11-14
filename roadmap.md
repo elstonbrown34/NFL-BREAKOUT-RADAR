@@ -12,3 +12,5 @@
 - [x] Compute historical scores and verify Backtest charts, lists, and mobile layout.
 - [x] Add How It Works, navigation, footer, loading and empty states.
 - [x] Verify every page on mobile and desktop.
+- [x] Replace manual scouting reports with data-keyed automatic reports below Breakout Score.
+- [x] Verify report caching, invalid-output handling, and desktop/mobile player pages.

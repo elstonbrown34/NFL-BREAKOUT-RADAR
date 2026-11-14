@@ -34,6 +34,7 @@ function PlayerPage() {
   return <AppShell><Button asChild variant="ghost" size="sm" className="mb-6"><Link to="/" search={{season:2026}}><ArrowLeft/>Back to Radar</Link></Button>
     <div className="player-heading"><Headshot large url={player.headshot_url} name={player.player_name}/><div className="min-w-0"><div className="eyebrow">{player.team} · {player.position} · Rank {player.rank}</div><h1 className="page-title">{player.player_name}</h1><p className="subtitle">Data through Week {cutoffWeek} of the {season} season.</p></div></div>
     <div className="player-breakout"><span className="text-muted-foreground">Breakout Score</span><ScoreDisplay value={player.breakout_score}/><span className="text-muted-foreground">Rank #{player.rank}</span></div>
+    <ScoutingReport key={`${playerId}-${season}-${cutoffWeek}`} report={data.report} season={season} cutoffWeek={cutoffWeek} playerId={playerId}/>
     <div className="component-grid">{[
       {label:'Role',value:player.role_score,explanation:'How quickly his snap share and target share are growing.'},
       {label:'Opportunity',value:player.opportunity_score,explanation:'How much passing opportunity or how many touches per snap he earns.'},
@@ -42,7 +43,6 @@ function PlayerPage() {
     <section className="mt-8"><h2 className="section-heading mb-4">Weekly role trends</h2>{data.weeks.length ? <PlayerTrendChart weeks={data.weeks} cutoffWeek={cutoffWeek}/> : <p className="text-muted-foreground py-6">Weekly trends aren't available for this player yet.</p>}</section>
     <dl className="detail-grid"><div className="detail-metric"><dt>Games with offensive snaps</dt><dd>{player.games}</dd></div><div className="detail-metric"><dt>PPR points per game</dt><dd>{player.ppg.toFixed(1)}</dd></div><div className="detail-metric"><dt>Average snap share</dt><dd>{(player.avg_snap_pct*100).toFixed(1)}%</dd></div><div className="detail-metric"><dt>Position comparison</dt><dd>{player.position}</dd></div></dl>
     <h2 className="section-heading mb-4">Weekly performance</h2><div className="table-wrap"><table className="radar-table"><thead><tr><th>Week</th><th>Team</th><th>Offensive snaps</th><th>Snap share</th><th>Targets</th><th>Carries</th><th>Target share</th><th>PPR</th></tr></thead><tbody>{data.weeks.map(w => <tr key={w.week}><td>{w.week}{isLimitedGame(w) && <span className="limited-badge">Limited (possible injury)</span>}</td><td>{w.team}</td><td>{w.offense_snaps ?? '—'}</td><td>{w.offense_pct === null ? '—' : `${(w.offense_pct*100).toFixed(1)}%`}</td><td>{w.targets ?? '—'}</td><td>{w.carries ?? '—'}</td><td>{w.target_share === null ? '—' : `${(w.target_share*100).toFixed(1)}%`}</td><td>{w.fantasy_points_ppr?.toFixed(1) ?? '—'}</td></tr>)}</tbody></table></div>
-    <ScoutingReport key={`${playerId}-${season}-${cutoffWeek}`} report={data.report} season={season} cutoffWeek={cutoffWeek} playerId={playerId}/>
     {!data.weeks.length && <p className="text-muted-foreground mt-5">Weekly statistics aren't available for this selection yet.</p>}
   </AppShell>;
 }
