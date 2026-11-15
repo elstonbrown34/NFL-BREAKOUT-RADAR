@@ -52,6 +52,17 @@ Results (vs. picking any eligible player at random):
 
 The baseline retains every eligible player — including those who stopped playing — to avoid survivorship bias. The page states plainly: small sample; injuries, trades and coaching changes can't be predicted from box scores.
 
+### Does it beat simpler rankings?
+
+All methods select from the same saved Week 10 eligible cohort. Recent PPR uses the last three offensive-snap games through Week 10. Snap-share growth uses the model's last-three versus earlier-game trend, excluding games below 20% snap share. Neither ranking uses future outcomes; missing values sort last and ties use player name then ID.
+
+| Season | Breakout Score Top 20 | Recent PPR Top 20 | Snap growth Top 20 |
+| ------ | --------------------- | ----------------- | ------------------ |
+| 2024   | 20.0% (4/20)          | 15.0% (3/20)      | 15.0% (3/20)       |
+| 2025   | 15.0% (3/20)          | 25.0% (5/20)      | 30.0% (6/20)       |
+
+**Honest conclusion:** the model beat both simple alternatives in 2024 but underperformed both in 2025. Beating random alone is not proof of a consistent edge. Two seasons and small Top 20 samples do not establish statistical significance; more historical seasons and an untouched future evaluation are needed before claiming predictive superiority. These comparisons do not change the model or tune it to the observed outcomes.
+
 ## AI features (server-side only)
 
 - **AI Scouting Report** — each player page can generate a short report (why rising / what to watch / verdict) from that player's scores, percentiles and 3-week changes. Reports are cached by a SHA-256 fingerprint of the exact input data, so unchanged data never repeats inference. Invalid AI output is validated and discarded; the page never breaks.
@@ -64,7 +75,7 @@ No API keys in the frontend. All AI calls run in server functions with validated
 - **Stack:** React 19, TanStack Start (SSR + server functions), TanStack Query, Tailwind CSS v4, Lovable Cloud (Postgres with row-level security), Lovable AI Gateway.
 - **Data pipeline:** weekly sync from fixed nflverse URLs with an atomic 5-minute per-season cooldown; CSV parsing, name normalization and joining live in a tested pure module.
 - **Security:** public tables are read-only to anonymous users; all writes go through privileged server-side RPCs with advisory locks. Rate limits and generation claims are enforced atomically in the database.
-- **Testing:** 56 unit tests cover the scoring model, backtest evaluation, filter application, scouting schema and name joining — the deterministic core is fully verified.
+- **Testing:** unit tests cover the scoring model, backtest evaluation, cutoff-only benchmark rankings, filter application, scouting schema and name joining.
 - **Data quality rules:** average tied ranks, neutral missing metrics, injury-shortened game exclusion, full-cohort recomputation for historical comparisons.
 
 ## Running locally

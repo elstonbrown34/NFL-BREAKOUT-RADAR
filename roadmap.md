@@ -19,3 +19,5 @@
 - [x] Add weekly question caching, private query logs, and approved custom visitor search limits.
 - [x] Test filtering rules and verify real searches, caching, and mobile layout.
 - [x] Capture Radar, player, and Backtest screenshots and add them to the portfolio README.
+- [x] Add tested, cutoff-only recent PPR and snap-growth benchmarks using the same eligible players.
+- [x] Show benchmark hit rates and honest model comparisons on Backtest; document and verify real results.

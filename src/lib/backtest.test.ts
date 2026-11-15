@@ -48,4 +48,35 @@ describe('historical breakout rules', () => {
   it('does not claim a lift when the baseline has no hits', () => {
     expect(evaluateBacktest(computeBreakoutScores([1,2,3,10].map(w=>row('a',w)),2024,10),[],2024).lift).toBeNull();
   });
+  it('ranks recent PPR by the last three offensive games through week 10, not future results', () => {
+    const before = ['a','b'].flatMap(id => [1,2,3,10].map(w=>row(id,w,id==='a' ? (w===1?30:5) : 9)));
+    const scores=computeBreakoutScores(before,2024,10);
+    const after=[11,12,13,14].map(w=>row('a',w,100));
+    const result=evaluateBacktest(scores,[...before,...after,{...row('a',9,999),offense_snaps:0},{...row('a',10,999),season:2025}],2024);
+    expect(result.benchmarks[1]?.playerIds).toEqual(['b','a']);
+    expect(evaluateBacktest(scores,before,2024).benchmarks[1]?.playerIds).toEqual(['b','a']);
+  });
+  it('ranks snap growth using the last three non-limited games versus earlier games', () => {
+    const before=['a','b'].flatMap(id=>[1,2,3,4,10].map(w=>({...row(id,w),offense_pct:w===10?.1:w===1?(id==='a'?.2:.6):.5})));
+    const result=evaluateBacktest(computeBreakoutScores(before,2024,10),before,2024);
+    expect(result.benchmarks[2]?.playerIds).toEqual(['a','b']);
+  });
+  it('keeps identical eligible pools, missing outcomes, and deterministic ties in every benchmark', () => {
+    const before=Array.from({length:25},(_,i)=>[1,2,3,10].map(w=>row(`p${String(i).padStart(2,'0')}`,w))).flat();
+    const scores=computeBreakoutScores(before,2024,10);
+    const after=scores.slice(0,5).flatMap(p=>[11,12,13,14].map(w=>row(p.player_id,w,12)));
+    const result=evaluateBacktest(scores,[...before,...after,...[1,2,3,10].map(w=>row('ineligible',w,100))],2024);
+    for (const benchmark of result.benchmarks) {
+      expect(benchmark.top10).toEqual({hits:5,total:10,rate:.5});
+      expect(benchmark.top20).toEqual({hits:5,total:20,rate:.25});
+      expect(benchmark.playerIds).toEqual(scores.slice(0,20).map(p=>p.player_id));
+    }
+  });
+  it('places missing benchmark metrics last and returns null rates for empty cohorts', () => {
+    const before=['a','b'].flatMap(id=>[1,2,3,10].map(w=>row(id,w)));
+    const scores=computeBreakoutScores(before,2024,10);
+    const result=evaluateBacktest(scores,before.filter(w=>w.player_id==='b'),2024);
+    expect(result.benchmarks[1]?.playerIds).toEqual(['b','a']);
+    expect(evaluateBacktest([],[],2024).benchmarks.map(b=>b.top20.rate)).toEqual([null,null,null]);
+  });
 });
