@@ -1,6 +1,6 @@
 import { computeBreakoutScores } from './breakout-model';
 import { publicClient, readPlayerWeeks } from './nfl.server';
-import { reportSchema, scoutingNumbers, scoutingFingerprint } from './scouting-data';
+import { readSavedScoutingReport, scoutingNumbers, scoutingFingerprint } from './scouting-data';
 
 export async function scoutingContext(data:{season:number;cutoffWeek:number;playerId:string}) {
   const db = publicClient();
@@ -17,7 +17,7 @@ export async function scoutingContext(data:{season:number;cutoffWeek:number;play
   const fingerprint = await scoutingFingerprint(numbers);
   const cached = await db.from('scouting_report_versions').select('report').eq('player_id',data.playerId).eq('season',data.season).eq('cutoff_week',data.cutoffWeek).eq('data_fingerprint',fingerprint).maybeSingle();
   if (cached.error) throw new Error('Scouting cache unavailable');
-  const parsed = reportSchema.safeParse(cached.data?.report);
-  if (cached.data && !parsed.success) console.error('Invalid saved scouting summary',{playerId:data.playerId});
-  return {numbers,fingerprint,report:parsed.success ? parsed.data : null};
+  const parsed = readSavedScoutingReport(cached.data?.report);
+  if (cached.data && !parsed) console.error('Invalid saved scouting summary',{playerId:data.playerId});
+  return {numbers,fingerprint,report:parsed};
 }

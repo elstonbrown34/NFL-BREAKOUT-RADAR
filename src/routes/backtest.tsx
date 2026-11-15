@@ -4,12 +4,13 @@ import { ChartColumn, RefreshCw } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
 import { BacktestChart } from '@/components/backtest-chart';
 import { Button } from '@/components/ui/button';
+import { summarizeBacktests } from '@/lib/backtest';
 import { backtestOptions } from '@/lib/backtest.queries';
 import { PageNotFound } from '@/components/page-states';
 
 export const Route = createFileRoute('/backtest')({
   loader:({context})=>context.queryClient.ensureQueryData(backtestOptions),
-  head:()=>({meta:[{title:'Historical Backtest | NFL Breakout Radar'},{name:'description',content:'Test week-10 Breakout Scores against weeks 11–18 in 2024 and 2025, comparing Top 10 and Top 20 hit rates with all eligible players.'},{property:'og:title',content:'Historical Backtest | NFL Breakout Radar'},{property:'og:description',content:'An honest historical check of NFL breakout rankings versus the random-pick baseline.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
+  head:()=>({meta:[{title:'Historical Backtest | NFL Breakout Radar'},{name:'description',content:'Test week-10 Breakout Scores against weeks 11–18 in 2019–2025, comparing Top 10 and Top 20 hit rates with all eligible players.'},{property:'og:title',content:'Historical Backtest | NFL Breakout Radar'},{property:'og:description',content:'An honest historical check of NFL breakout rankings versus the random-pick baseline.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
   component:BacktestPage,
   errorComponent:BacktestError,
   notFoundComponent:PageNotFound,
@@ -21,10 +22,11 @@ function BacktestError({error}:ErrorComponentProps) {
 }
 function BacktestPage() {
   const {data:seasons} = useSuspenseQuery(backtestOptions);
+  const summary = summarizeBacktests(seasons);
   return <AppShell>
     <div className="eyebrow"><ChartColumn size={14}/> Historical validation</div>
     <h1 className="page-title">Breakout model backtest</h1>
-    <p className="subtitle">Rankings frozen at Week 10. Outcomes measured in Weeks 11–18.</p>
+    <p className="subtitle">Rankings frozen at Week 10. Outcomes measured in Weeks 11–18 (through Week 17 in 2019–2020).</p>
     <div className="backtest-stats">{seasons.map(s=><div className="stat-card" key={s.season}>
       <div className="stat-label"><span>{s.season} SEASON · TOP 20</span><ChartColumn size={16}/></div>
       <div className="flex items-baseline flex-wrap gap-x-4 gap-y-2 my-4"><strong className="backtest-rate text-primary">{percent(s.top20.rate)}</strong><span className="text-muted-foreground">vs <strong className="text-foreground text-xl">{percent(s.baseline.rate)}</strong> baseline</span></div>
@@ -32,7 +34,8 @@ function BacktestPage() {
       <div className="mt-4 pt-3 border-t border-border text-sm text-muted-foreground">Top 10: <strong className="text-foreground">{percent(s.top10.rate)}</strong> ({s.top10.hits}/{s.top10.total}) · {s.lift === null ? 'lift unavailable' : `${s.lift.toFixed(2)}× random`}</div>
     </div>)}</div>
     <section className="backtest-section"><h2 className="section-heading">Does the model beat simpler rankings?</h2><p className="text-muted-foreground text-sm mt-3 mb-5">Same eligible players. Same Week 10 cutoff. Same breakout definition. No Weeks 11–18 data is used to rank players.</p>
-      <div className="table-wrap"><table className="radar-table"><thead><tr><th>Season</th><th>Ranking</th><th>Top 20 hit rate</th><th>Top 10 hit rate</th><th>Top 20 vs random</th></tr></thead><tbody>{seasons.flatMap(s=>s.benchmarks.map(b=><tr key={`${s.season}-${b.id}`}><td>{s.season}</td><td className={b.id==='model'?'text-primary font-semibold':'text-foreground'}>{b.label}</td><td>{percent(b.top20.rate)} <span className="text-muted-foreground text-xs">({b.top20.hits}/{b.top20.total})</span></td><td>{percent(b.top10.rate)} <span className="text-muted-foreground text-xs">({b.top10.hits}/{b.top10.total})</span></td><td>{s.baseline.rate && b.top20.rate !== null ? `${(b.top20.rate/s.baseline.rate).toFixed(2)}×` : '—'}</td></tr>))}</tbody></table></div>
+      <div className="table-wrap"><table className="radar-table"><thead><tr><th>Season</th><th>Ranking</th><th>Top 20 hit rate</th><th>Top 10 hit rate</th><th>Top 20 vs random</th></tr></thead><tbody>{summary.benchmarks.map(b=><tr key={`combined-${b.id}`} className="font-semibold"><td>2019–2025 combined</td><td className={b.id==='model'?'text-primary':'text-foreground'}>{b.label}</td><td>{percent(b.top20.rate)} <span className="text-muted-foreground text-xs">({b.top20.hits}/{b.top20.total})</span></td><td>—</td><td>{b.lift===null?'—':`${b.lift.toFixed(2)}×`}</td></tr>)}{seasons.flatMap(s=>s.benchmarks.map(b=><tr key={`${s.season}-${b.id}`}><td>{s.season}</td><td className={b.id==='model'?'text-primary font-semibold':'text-foreground'}>{b.label}</td><td>{percent(b.top20.rate)} <span className="text-muted-foreground text-xs">({b.top20.hits}/{b.top20.total})</span></td><td>{percent(b.top10.rate)} <span className="text-muted-foreground text-xs">({b.top10.hits}/{b.top10.total})</span></td><td>{s.baseline.rate && b.top20.rate !== null ? `${(b.top20.rate/s.baseline.rate).toFixed(2)}×` : '—'}</td></tr>))}</tbody></table></div>
+      <p className="text-muted-foreground text-sm mt-4">Combined results pool hits and selections across all seven seasons; random baseline: {percent(summary.baseline.rate)} ({summary.baseline.hits}/{summary.baseline.total} eligible player-seasons). Rates are not averages of season percentages.</p>
       <div className="mt-5 space-y-3">{seasons.map(s=>{
         const alternatives=s.benchmarks.filter(b=>b.id!=='model' && b.top20.rate!==null);
         const best=alternatives.reduce<typeof alternatives[number]|undefined>((leader,b)=>!leader || (b.top20.rate ?? 0)>(leader.top20.rate ?? 0)?b:leader,undefined);

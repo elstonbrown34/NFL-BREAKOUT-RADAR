@@ -43,6 +43,13 @@
       "when": 1794695299988,
       "tag": "0005_ask_radar_filters_cache_and_standings",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794721343487,
+      "tag": "0006_expand_historical_seasons",
+      "breakpoints": true
     }
   ]
 }

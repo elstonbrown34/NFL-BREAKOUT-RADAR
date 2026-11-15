@@ -8,4 +8,10 @@ describe('Team quality through cutoff',()=>{
   it('ignores games after cutoff and other seasons',()=>{const csv=header+games+'\n2026,REG,11,ARI,TB,0,50\n2025,REG,10,ARI,TB,0,50';expect(computeTeamQuality(csv,2026,10).find(r=>r.team==='ARI')?.win_pct).toBe(1);});
   it('counts a tie as half a win',()=>{const csv=header+games.replace(`ARI,${RADAR_TEAMS[16]},20,10`,`ARI,${RADAR_TEAMS[16]},10,10`);expect(computeTeamQuality(csv,2026,10).find(r=>r.team==='ARI')?.win_pct).toBe(.5);});
   it('returns unknown when no season results exist',()=>{expect(computeTeamQuality(header,2026,10)).toEqual([]);});
+  it('includes Oakland in all 32 historical team standings',()=>{
+    const csv=header+games.replaceAll('2026','2019').replaceAll('LV','OAK');
+    const rows=computeTeamQuality(csv,2019,10);
+    expect(rows).toHaveLength(32);
+    expect(rows.find(r=>r.team==='LV')?.win_pct).toBe(0);
+  });
 });

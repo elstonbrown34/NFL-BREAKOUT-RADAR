@@ -1,3 +1,4 @@
+import { SEASONS, seasonSchema } from '@/lib/nfl-data';
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
@@ -10,7 +11,7 @@ import { playerScoreOptions, scoresOptions } from '@/lib/scores.queries';
 import { isLimitedGame } from '@/lib/breakout-model';
 import { PageError, PageNotFound } from '@/components/page-states';
 export const Route = createFileRoute('/player/$playerId')({
-  validateSearch: (s:Record<string,unknown>) => ({season:([2024,2025,2026].includes(Number(s['season'])) ? Number(s['season']) : 2026) as 2024 | 2025 | 2026,cutoffWeek:Number.isInteger(Number(s['cutoffWeek'])) && Number(s['cutoffWeek']) >= 1 && Number(s['cutoffWeek']) <= 18 ? Number(s['cutoffWeek']) : 0}),
+  validateSearch: (s:Record<string,unknown>) => ({season:seasonSchema.parse(SEASONS.some(year=>year===Number(s['season'])) ? Number(s['season']) : 2026),cutoffWeek:Number.isInteger(Number(s['cutoffWeek'])) && Number(s['cutoffWeek']) >= 1 && Number(s['cutoffWeek']) <= 18 ? Number(s['cutoffWeek']) : 0}),
   loaderDeps: ({search}) => search,
   loader: async ({context,params,deps}) => {
     const cutoffWeek = deps.cutoffWeek || (await context.queryClient.ensureQueryData(scoresOptions)).cutoffWeek;

@@ -5,7 +5,8 @@ export function computeTeamQuality(csv:string,season:number,cutoffWeek:number) {
   const rows=Papa.parse<Record<string,string>>(csv,{header:true,skipEmptyLines:true}).data;
   for(const r of rows) {
     if(Number(r['season'])!==season||r['game_type']!=='REG'||Number(r['week'])<1||Number(r['week'])>cutoffWeek||!r['home_score']?.trim()||!r['away_score']?.trim()) continue;
-    const home=records.get(normalizeTeam(r['home_team']??'')),away=records.get(normalizeTeam(r['away_team']??''));
+    const historicalTeam = (team:string) => normalizeTeam(team==='OAK'?'LV':team==='SD'?'LAC':team==='STL'?'LA':team);
+    const home=records.get(historicalTeam(r['home_team']??'')),away=records.get(historicalTeam(r['away_team']??''));
     const hs=Number(r['home_score']),as=Number(r['away_score']);
     if(!home||!away||!Number.isFinite(hs)||!Number.isFinite(as)) continue;
     home.games++;away.games++;home.wins+=hs>as?1:hs===as?.5:0;away.wins+=as>hs?1:hs===as?.5:0;

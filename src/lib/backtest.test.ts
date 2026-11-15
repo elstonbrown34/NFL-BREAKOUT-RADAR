@@ -1,10 +1,33 @@
 import { describe, expect, it } from 'vitest';
-import { breakoutHit, evaluateBacktest } from './backtest';
+import { breakoutHit, evaluateBacktest, BACKTEST_SEASONS, finalRegularWeek, summarizeBacktests } from './backtest';
 import { computeBreakoutScores } from './breakout-model';
 import type { PlayerWeek } from './nfl-data';
 
 const row = (player_id: string, week: number, fantasy_points_ppr = 8): PlayerWeek => ({ season:2024, week, player_id, player_name:player_id, team:'BUF', position:'WR', headshot_url:null, targets:4, receptions:3, receiving_yards:30, receiving_epa:2, carries:0, rushing_yards:0, rushing_epa:0, target_share:.2, wopr:.3, fantasy_points_ppr, offense_snaps:40, offense_pct:.5 });
 describe('historical breakout rules', () => {
+  it('covers 2019–2025 at the same Week 10 cutoff and handles the 17-week seasons',()=>{
+    expect(BACKTEST_SEASONS).toEqual([2019,2020,2021,2022,2023,2024,2025]);
+    for (const season of BACKTEST_SEASONS) {
+      expect(finalRegularWeek(season)).toBe(season<2021?17:18);
+      const before=[1,2,3,10].map(w=>({...row('a',w),season}));
+      const after=[11,12,13,17].map(w=>({...row('a',w,12),season}));
+      const result=evaluateBacktest(computeBreakoutScores(before,season,10),[...before,...after],season);
+      expect(result.top20).toEqual({hits:1,total:1,rate:1});
+    }
+  });
+  it('combines raw hits and denominators for all three rankings, not averaged rates',()=>{
+    const a=evaluateBacktest([],[],2019),b=evaluateBacktest([],[],2020);
+    a.baseline={hits:1,total:10,rate:.1};b.baseline={hits:9,total:30,rate:.3};
+    a.benchmarks.forEach((benchmark,i)=>{benchmark.top20={hits:i+1,total:5,rate:(i+1)/5};});
+    b.benchmarks.forEach((benchmark,i)=>{benchmark.top20={hits:i+2,total:20,rate:(i+2)/20};});
+    const combined=summarizeBacktests([a,b]);
+    expect(combined.baseline).toEqual({hits:10,total:40,rate:.25});
+    combined.benchmarks.forEach((benchmark,i)=>{
+      expect(benchmark.top20).toEqual({hits:2*i+3,total:25,rate:(2*i+3)/25});
+      expect(benchmark.lift).toBe(((2*i+3)/25)/.25);
+    });
+    expect(summarizeBacktests([]).benchmarks.map(b=>b.lift)).toEqual([null,null,null]);
+  });
   it('requires four played games', () => {
     expect(breakoutHit('WR',8,12,3)).toBe(false);
     expect(breakoutHit('WR',8,12,4)).toBe(true);

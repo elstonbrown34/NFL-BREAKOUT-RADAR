@@ -3,7 +3,7 @@ import type { evaluateBacktest } from '@/lib/backtest';
 
 export function BacktestChart({seasons}:{seasons:ReturnType<typeof evaluateBacktest>[]}) {
   const data = seasons.map(s => ({season:String(s.season),top10:(s.top10.rate ?? 0)*100,top20:(s.top20.rate ?? 0)*100,baseline:(s.baseline.rate ?? 0)*100}));
-  return <div className="backtest-chart" role="img" aria-label="Top 10, Top 20 and baseline breakout hit rates for 2024 and 2025"><ResponsiveContainer width="100%" height="100%"><BarChart data={data} margin={{top:16,right:12,bottom:8,left:0}} barGap={8}>
+  return <div className="backtest-chart" role="img" aria-label="Top 10, Top 20 and baseline breakout hit rates for 2019 through 2025"><ResponsiveContainer width="100%" height="100%"><BarChart data={data} margin={{top:16,right:12,bottom:8,left:0}} barGap={2}>
     <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false}/>
     <XAxis dataKey="season" stroke="var(--muted-foreground)" tickLine={false} axisLine={false}/>
     <YAxis domain={[0,100]} tickFormatter={v=>`${v}%`} stroke="var(--muted-foreground)" tickLine={false} axisLine={false} width={45}/>

@@ -1,8 +1,9 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { computeBreakoutScores } from './breakout-model';
+import { seasonSchema } from './nfl-data';
 
-const cutoffSchema = z.object({ season: z.union([z.literal(2024), z.literal(2025), z.literal(2026)]), cutoffWeek: z.number().int().min(1).max(18) });
+const cutoffSchema = z.object({ season: seasonSchema, cutoffWeek: z.number().int().min(1).max(18) });
 
 // compute-scores: public bounded maintenance, accepting no caller-provided rows or identities.
 export const computeScores = createServerFn({ method: 'POST' }).inputValidator(cutoffSchema).handler(async ({ data }) => {

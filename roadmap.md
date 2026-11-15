@@ -21,3 +21,6 @@
 - [x] Capture Radar, player, and Backtest screenshots and add them to the portfolio README.
 - [x] Add tested, cutoff-only recent PPR and snap-growth benchmarks using the same eligible players.
 - [x] Show benchmark hit rates and honest model comparisons on Backtest; document and verify real results.
+- [x] Update scouting signal heading and enforce labeled one-line verdicts, preserving saved reports.
+- [x] Sync 2019–2023 and save Week 10 scores; expand Backtest to seven seasons and pooled benchmarks.
+- [x] Test rules and verify historical player links, combined results, and mobile display.

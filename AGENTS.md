@@ -32,7 +32,7 @@ use the editor.
 ## App architecture
 - Load all NFL data through TanStack server functions; never download CSVs or query the database in browser code.
 - Keep CSV filtering, name joining, and trend ranking in a tested pure module so import and scoring behavior remain deterministic.
-- The public maintenance sync only accepts three validated seasons and fixed nflverse URLs, with an atomic five-minute per-season cooldown; it grants no user admin privileges or arbitrary data writes.
+- The public maintenance sync only accepts the eight validated 2019–2026 seasons and fixed nflverse URLs, with an atomic five-minute per-season cooldown; it grants no user admin privileges or arbitrary data writes.
 - Read public statistics using a server publishable client; privileged access is limited to bounded source sync, server-computed score saves, and validated AI report saves and generation claims, never caller-provided rows.
 - Keep the percentile score model in a tested pure module; average tied ranks, neutral missing metrics, and offensive-snap games make cutoff results deterministic.
 - Save score batches and computation status in one database transaction; Radar reads only the latest loaded cutoff and detail links preserve that cutoff.
@@ -43,3 +43,6 @@ use the editor.
 - Ask the Radar AI translates questions only; tested pure filters apply stored scores, full-cohort three-week comparisons, and cutoff standings so inference never supplies player data.
 - Persist question claims and private logs by normalized question, season, and week; enforce the approved per-browser rolling-hour limit with a server-issued cookie and atomic database claim to bound repeat inference.
 - Refresh team quality from the fixed nflverse schedule URL during weekly sync; rank cutoff win percentages with alphabetical tie-breaking so future results never affect historical classifications.
+
+- Pool backtest hits and eligible player-seasons for combined rates and lift, never average season percentages; require the final regular-season week (17 before 2021, otherwise 18) so historical completeness is checked correctly.
+- Enforce labeled verdicts on new scouting output; adapt legacy cached verdicts conservatively to Watch without replaying inference for unchanged data.

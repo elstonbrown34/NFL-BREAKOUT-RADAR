@@ -1,6 +1,9 @@
 import Papa from 'papaparse';
+import { z } from 'zod';
 
-export const SEASONS = [2024, 2025, 2026] as const;
+export const SEASONS = [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026] as const;
+export const seasonSchema = z.union([z.literal(2019),z.literal(2020),z.literal(2021),z.literal(2022),z.literal(2023),z.literal(2024),z.literal(2025),z.literal(2026)]);
+export type Season = typeof SEASONS[number];
 export type CsvRow = Record<string, string>;
 export type PlayerWeek = {
   season: number; week: number; player_id: string; player_name: string; position: string; team: string; headshot_url: string | null;

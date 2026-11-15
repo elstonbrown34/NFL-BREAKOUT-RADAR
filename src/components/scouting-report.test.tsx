@@ -8,7 +8,7 @@ afterEach(()=>{cleanup();vi.clearAllMocks();});
 describe('automatic scouting recovery',()=>{
   const props={season:2026 as const,cutoffWeek:10,playerId:'a'};
   it('does not invoke generation when a saved report exists',()=>{
-    render(<ScoutingReport {...props} report={{why_rising:'Role is rising.',what_to_watch:'Watch opportunity.',verdict:'Monitor the role.'}}/>);
+    render(<ScoutingReport {...props} report={{why_rising:'Role is rising.',what_to_watch:'Watch opportunity.',verdict:'Watch: Monitor the role.'}}/>);
     expect(generate).not.toHaveBeenCalled();
   });
   it('leaves no card after the server rejects invalid AI output',async()=>{

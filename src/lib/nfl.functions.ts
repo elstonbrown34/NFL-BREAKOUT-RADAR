@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
-import { joinWeeks, parseCsv, rankPlayers, SEASONS, type PlayerWeek } from './nfl-data';
+import { joinWeeks, parseCsv, rankPlayers, SEASONS, seasonSchema as supportedSeason, type PlayerWeek } from './nfl-data';
 
-const seasonSchema = z.object({ season: z.union([z.literal(2024), z.literal(2025), z.literal(2026)]) });
+const seasonSchema = z.object({ season: supportedSeason });
 export const getSeasonStatus = createServerFn({ method: 'GET' }).handler(async () => {
   const { publicClient } = await import('./nfl.server');
   const { data, error } = await publicClient().from('season_syncs').select('*').order('season');

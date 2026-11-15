@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { joinWeeks, normalizeName, parseCsv, SEASONS } from './nfl-data';
+import { joinWeeks, normalizeName, parseCsv, SEASONS, seasonSchema } from './nfl-data';
 describe('nflverse import rules', () => {
-  it('supports exactly the requested seasons', () => expect(SEASONS).toEqual([2024,2025,2026]));
+  it('supports exactly the requested historical seasons and existing seasons', () => {
+    expect(SEASONS).toEqual([2019,2020,2021,2022,2023,2024,2025,2026]);
+    for (const season of SEASONS) expect(seasonSchema.parse(season)).toBe(season);
+    expect(seasonSchema.safeParse(2018).success).toBe(false);
+    expect(seasonSchema.safeParse(2027).success).toBe(false);
+  });
   it('normalizes punctuation and name suffixes', () => expect(normalizeName("D.J. Moore Jr., III")).toBe('dj moore'));
   it('keeps only regular-season WR TE RB stats', () => {
     const rows = parseCsv('position,season_type\nWR,REG\nTE,REG\nRB,REG\nQB,REG\nWR,POST','stats');
