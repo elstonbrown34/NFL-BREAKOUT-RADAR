@@ -29,7 +29,7 @@ function RadarPage() {
   const players=applyRadarFilters(data.players,filters);
   const suggestion=!players.length?restrictiveChip(data.players,filters):undefined;
   return <AppShell>
-    <div className="flex flex-wrap items-start justify-between gap-5"><div><div className="eyebrow"><span className="live-dot"/> Opportunity intelligence</div><h1 className="page-title">NFL Breakout Radar</h1><p className="subtitle">Who's about to break out, before the box score shows it.</p></div><div className="hero-ask"><span className="season-label">2026 REGULAR SEASON</span><AskRadar filters={filters} onChange={updateFilters} cutoffWeek={data.cutoffWeek} disabled={!data.computedAt}/></div></div>
+    <div className="flex flex-wrap items-start justify-between gap-5"><div><div className="eyebrow"><span className="live-dot"/> Opportunity intelligence</div><h1 className="page-title">NFL Breakout Radar</h1><p className="subtitle">Who's about to break out, before the box score shows it.</p><p className="hero-note">Every receiver, tight end and running back is scored on role, opportunity and efficiency — then ranked against players at the same position.</p></div><div className="hero-ask"><span className="season-label">2026 REGULAR SEASON</span><AskRadar filters={filters} onChange={updateFilters} cutoffWeek={data.cutoffWeek} disabled={!data.computedAt}/></div></div>
     <div className="stat-grid">{[
       {label:'Eligible players',value:data.players.length,icon:Users},
       {label:'Leading Breakout Score',value:data.players[0]?.breakout_score.toFixed(1) ?? '—',icon:TrendingUp},

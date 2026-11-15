@@ -10,6 +10,7 @@ export function AskRadar({filters,onChange,cutoffWeek,disabled}:{filters:RadarFi
   const [question,setQuestion]=useState('');
   const [pending,setPending]=useState(false);
   const [error,setError]=useState('');
+  const [showExamples,setShowExamples]=useState(false);
   const search=useServerFn(askRadar);
   const chips=filterChips(filters);
   async function submit(value:string) {
@@ -28,7 +29,8 @@ export function AskRadar({filters,onChange,cutoffWeek,disabled}:{filters:RadarFi
       <div className="relative min-w-0 flex-1"><Search size={18} className="absolute left-3 top-3 text-muted-foreground pointer-events-none"/><Input aria-label="Ask the Radar" placeholder="Ask the Radar... e.g. tight ends with rising opportunity on bad teams" value={question} maxLength={200} onChange={e=>setQuestion(e.target.value)} disabled={pending||disabled} className="h-11 pl-10 bg-card"/></div>
       <Button type="submit" disabled={pending||disabled||!question.trim()} className="h-11 shrink-0">{pending?<LoaderCircle className="animate-spin"/>:<ArrowUpRight/>}{pending?'Searching':'Ask'}</Button>
     </form>
-    <div className="ask-examples">{EXAMPLES.map(example=><Button key={example} variant="ghost" size="sm" disabled={pending||disabled} onClick={()=>void submit(example)} className="ask-example"><ArrowUpRight size={12}/>{example}</Button>)}</div>
+    <Button type="button" variant="ghost" size="sm" className="ask-examples-toggle" aria-expanded={showExamples} onClick={()=>setShowExamples(v=>!v)}>{showExamples?'Hide example questions':'Show example questions'}</Button>
+    <div className={`ask-examples${showExamples?' open':''}`}>{EXAMPLES.map(example=><Button key={example} variant="ghost" size="sm" disabled={pending||disabled} onClick={()=>void submit(example)} className="ask-example"><ArrowUpRight size={12}/>{example}</Button>)}</div>
     {pending&&<p role="status" className="text-muted-foreground text-xs mt-3">Interpreting your question…</p>}
     {error&&<p role="alert" className="text-destructive text-sm mt-3">{error}</p>}
     {!!chips.length&&<div className="filter-chips" aria-label="Applied filters">{chips.map(chip=><Button key={chip.id} variant="outline" size="sm" disabled={pending} className="filter-chip" aria-label={`Remove ${chip.label}`} onClick={()=>onChange(removeChip(filters,chip))}>{chip.label}<X size={13}/></Button>)}<Button variant="ghost" size="sm" disabled={pending} onClick={()=>onChange({})}>Clear all</Button></div>}
