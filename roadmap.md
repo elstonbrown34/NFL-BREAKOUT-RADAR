@@ -18,3 +18,4 @@
 - [x] Add nflverse cutoff-based team quality and three-week score comparisons.
 - [x] Add weekly question caching, private query logs, and approved custom visitor search limits.
 - [x] Test filtering rules and verify real searches, caching, and mobile layout.
+- [x] Capture Radar, player, and Backtest screenshots and add them to the portfolio README.

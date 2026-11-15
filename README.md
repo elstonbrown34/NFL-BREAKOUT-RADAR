@@ -6,6 +6,25 @@ Finds NFL players who are about to break out — before the box score shows it. 
 
 Built by Elston Brown II. Data: [nflverse](https://nflverse.nflverse.com/). Not affiliated with the NFL.
 
+## Screenshots
+
+Captured from the running app with loaded data; Radar and player analysis show the 2026 Week 10 cutoff.
+
+### Radar
+Position-relative rankings, component scores, and Ask the Radar search.
+
+![NFL Breakout Radar dashboard with Ask the Radar and player rankings](docs/screenshots/radar.png)
+
+### Player analysis
+DeMario Douglas's Breakout Score, saved AI scouting report, and weekly snap and target share trends.
+
+![DeMario Douglas player analysis with AI scouting report and weekly role chart](docs/screenshots/player.png)
+
+### Historical backtest
+2024 and 2025 Top 20 hit rates against the baseline, selection comparison chart, and player outcomes.
+
+![Historical backtest comparing Top 20 hit rates with the baseline](docs/screenshots/backtest.png)
+
 ## The problem
 
 Breakout players are obvious in hindsight. By the time fantasy points and highlight reels catch up, the signal was already there: snap share creeping up, targets per route rising, efficiency holding steady. This app quantifies those early signals so a rising role is visible weeks before the production spike.
