@@ -34,6 +34,6 @@ export function AskRadar({filters,onChange,cutoffWeek,disabled}:{filters:RadarFi
     {pending&&<p role="status" className="text-muted-foreground text-xs mt-3">Interpreting your question…</p>}
     {error&&<p role="alert" className="text-destructive text-sm mt-3">{error}</p>}
     {!!chips.length&&<div className="filter-chips" aria-label="Applied filters">{chips.map(chip=><Button key={chip.id} variant="outline" size="sm" disabled={pending} className="filter-chip" aria-label={`Remove ${chip.label}`} onClick={()=>onChange(removeChip(filters,chip))}>{chip.label}<X size={13}/></Button>)}<Button variant="ghost" size="sm" disabled={pending} onClick={()=>onChange({})}>Clear all</Button></div>}
-    {filters.unsupported&&<p className="text-xs text-muted-foreground mt-3">Ignored: {filters.unsupported}</p>}
+    {filters.unsupported&&<p className="text-xs text-muted-foreground mt-3">Note: {filters.unsupported}</p>}
   </section>;
 }
